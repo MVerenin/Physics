@@ -26,16 +26,17 @@ double approx_level_number(double coord, double coef, int M) {
 double get_bound(int num, double coef, int M){
     double par = 1.0; // начальное приближение для любого num
     while (approx_level_number(par, coef, M) < num){
-        par *= 2; // увеличиваем отрезок интегрирования, пока интеграл меньше нужного
+        par *= 2.; // увеличиваем отрезок интегрирования, пока интеграл меньше нужного
     }
-    while (abs(approx_level_number(par, coef, M) - num) > 0.001){
-        par -= par / 2. * (approx_level_number(par, coef, M) - num) / abs(approx_level_number(par, coef, M) - num); // метод дихотомии
+    double tmp = par/2.;
+    while (abs(approx_level_number(par, coef, M) - num) > 0.0001){
+        par -= tmp * (approx_level_number(par, coef, M) - num) / abs(approx_level_number(par, coef, M) - num); // метод дихотомии
+        tmp /= 2.;
     }
     return par;
 }
 
 int main() {
-    setlocale(LC_ALL, "Russian");
     int M = 1000; // число узлов сетки
     double const h = 1.05457e-34; // приведённая постоянная Планка
     double const PI = 3.14159265;
@@ -43,12 +44,12 @@ int main() {
     double U0 = 8.01e-20; // параметры потенциальной ямы
     double a = 1.e-9;
     double coef = a*pow(2*mass*U0,0.5)/h/PI; // безразмерный коэффициент
-    std::vector<double> x_coord(51); // рассчитаем координаты (безразмерные) точек поворота для первых 50 уровней
+    std::vector<double> x_coord(101); // рассчитаем координаты (безразмерные) точек поворота для первых 100 уровней
     std::ofstream fout; // для записи в файл
-	fout.open("Graph.txt");
-    for (int i = 0; i < 51; i++) {
+	fout.open("Graph2.txt");
+    for (int i = 0; i < 101; i++) {
         x_coord[i] = get_bound(i, coef, M);
-        fout << i <<"," <<x_coord[i] << std::endl;
+        fout << i <<"," <<epsilon(x_coord[i]) << std::endl;
     }
     fout.close();
     return 0;
